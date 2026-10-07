@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tìm kiếm âm thanh bộ gõ</title>
+<style>
+    /* Reset cơ bản để loại bỏ style mặc định của trình duyệt nếu cần */
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        /* Giới hạn độ rộng để dễ đọc, không bị tràn màn hình */
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+    }
+
+    h1, h2, h3 {
+        color: #111;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        font-weight: bold;
+    }
+
+    h1 { font-size: 1.8em; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    h2 { font-size: 1.5em; }
+    h3 { font-size: 1.2em; }
+
+    /* Các khối chứa nội dung - style đơn giản nhất có thể */
+    .box {
+        background-color: #f9f9f9; /* Nền xám nhạt phân biệt vùng */
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        /* Bỏ border-radius hoặc chỉ để rất nhỏ (2px) */
+        border-radius: 2px;
+    }
+
+    /* Form search */
+    form.box {
+        background-color: #eee; /* Nền form đậm hơn tí */
+        border-color: #ccc;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    label {
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+
+    /* Input file và select - style mặc định */
+    input[type="file"], select {
+        display: block;
+        width: 100%;
+        max-width: 450px;
+        font-family: inherit;
+        padding: 6px;
+        border: 1px solid #aaa;
+    }
+
+    /* Nút bấm - style mặc định của OS */
+    button {
+        font-family: inherit;
+        font-weight: bold;
+        padding: 8px 20px;
+        cursor: pointer;
+        background-color: #e0e0e0;
+        border: 1px solid #999;
+        border-radius: 2px;
+    }
+    button:hover { background-color: #d0d0d0; }
+    button:active { background-color: #c0c0c0; }
+
+    /* Row hình ảnh */
+    .row {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .row > div {
+        flex: 1;
+        min-width: 300px;
+        border: 1px solid #eee;
+        padding: 10px;
+        background: #fff;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Audio control */
+    audio {
+        width: 100%;
+        max-width: 400px;
+        height: 35px; /* Hơi nhỏ hơn chuẩn tí cho gọn */
+        margin-top: 5px;
+        vertical-align: middle;
+    }
+
+    /* Bảng kết quả - Boder đơn, font code */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 10px;
+        font-size: 0.9em;
+    }
+    th, td {
+        border: 1px solid #ccc; /* Border kẻ mảnh đơn */
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #eee;
+        text-align: center;
+    }
+    /* Center một số cột */
+    td.num, th.num { text-align: center; }
+    /* Cột điểm số để bold */
+    td.score { font-weight: bold; text-align: center;}
+
+    /* Nhãn nhạc cụ trong bảng - text thường */
+    .label-text { color: #444; }
+
+    /* Thông báo lỗi */
+    .err {
+        color: #d00;
+        background-color: #ffcccc;
+        border: 1px solid #dcc;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    /* Phân bố nhãn - đơn giản */
+    .votes-box {
+        margin-top: 10px;
+        padding: 8px;
+        background-color: #eee;
+        border: 1px solid #ccc;
+    }
+
+    /* Inline code style */
+    code {
+        font-family: monospace;
+        background-color: #eee;
+        padding: 2px 4px;
+        font-size: 0.9em;
+    }
+
+    /* Giao diện mới: rõ khối, responsive và không để bảng đặc trưng tràn ngang */
+    :root {
+        --blue: #2563eb;
+        --blue-dark: #1e40af;
+        --blue-soft: #eff6ff;
+        --text: #172033;
+        --muted: #64748b;
+        --line: #dbe3ee;
+        --surface: #fff;
+        --page: #f3f6fb;
+    }
+    body {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        color: var(--text);
+        background: var(--page);
+    }
+    .page-shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 30px 0 56px;
+    }
+    .hero {
+        margin-bottom: 22px;
+        padding: 30px;
+        color: white;
+        background: linear-gradient(135deg, #102b55, #2563eb 60%, #0ea5e9);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(30, 64, 175, .14);
+    }
+    .hero h1 { margin: 0; color: white; border: 0; padding: 0; }
+    .hero p { max-width: 760px; margin: 10px 0 0; color: #dbeafe; }
+    .box {
+        margin-bottom: 22px;
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: 0 10px 28px rgba(30, 64, 175, .07);
+    }
+    form.box { background: var(--surface); border-color: var(--line); }
+    .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+    .section-head h2, .section-head h3 { margin: 0; }
+    .section-head p { margin: 5px 0 0; color: var(--muted); }
+    .step-badge {
+        flex: 0 0 auto;
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        color: var(--blue-dark);
+        background: var(--blue-soft);
+        border-radius: 10px;
+        font-weight: 800;
+    }
+    .search-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .input-panel { padding: 17px; background: #f8fafc; border: 1px solid var(--line); border-radius: 11px; }
+    .input-panel small { display: block; margin: 4px 0 11px; color: var(--muted); }
+    input[type="file"], select { max-width: none; min-height: 44px; border-radius: 8px; background: white; }
+    .submit-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 17px; }
+    .submit-row span { color: var(--muted); font-size: .88rem; }
+    button { color: white; background: var(--blue); border: 0; border-radius: 9px; }
+    button:hover { background: var(--blue-dark); }
+    .row > div { border-color: var(--line); border-radius: 10px; overflow: hidden; }
+    .visual-help { margin-top: 8px; color: var(--muted); font-size: .84rem; }
+    .feature-note { margin-bottom: 16px; padding: 12px 14px; color: #1e3a5f; background: var(--blue-soft); border-left: 4px solid #60a5fa; border-radius: 8px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .feature-card { min-width: 0; padding: 14px; background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; }
+    .feature-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .feature-card strong { overflow-wrap: anywhere; }
+    .feature-value { flex: 0 0 auto; color: var(--blue-dark); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .feature-key { display: block; margin: 4px 0 7px; color: var(--muted); font-family: monospace; font-size: .75rem; }
+    .feature-desc { margin: 0; color: var(--muted); font-size: .84rem; }
+    .table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+    .table-wrap table { margin: 0; }
+    .table-wrap th { white-space: nowrap; }
+    .table-wrap tbody tr:hover { background: #f8fbff; }
+    .file-cell { min-width: 230px; }
+    .label-cell { min-width: 180px; overflow-wrap: anywhere; }
+    .audio-cell { min-width: 155px; }
+    .audio-cell audio { min-width: 140px; margin: 0; }
+    .votes-box { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-color: #bfdbfe; background: var(--blue-soft); border-radius: 10px; }
+    .vote-pill { padding: 4px 8px; background: white; border: 1px solid #c8daf5; border-radius: 999px; font-size: .84rem; }
+    @media (max-width: 900px) { .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 680px) {
+        .page-shell { width: calc(100% - 20px); padding-top: 10px; }
+        .hero, .box { padding: 18px; border-radius: 12px; }
+        .search-grid, .feature-grid { grid-template-columns: 1fr; }
+        .submit-row { flex-direction: column; align-items: stretch; }
+        .submit-row button { width: 100%; }
+    }
+
+    /* Chủ đề tối giản */
+    body {
+        color: #222;
+        background: #fff;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+    .page-shell {
+        width: min(1100px, calc(100% - 32px));
+        padding-top: 24px;
+    }
+    .hero {
+        margin: 0 0 24px;
+        padding: 0 0 18px;
+        color: #222;
+        background: none;
+        border-bottom: 2px solid #222;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .hero h1 {
+        color: #222;
+        font-size: 1.8rem;
+    }
+    .hero p {
+        margin-top: 7px;
+        color: #666;
+    }
+    .box,
+    form.box {
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-shadow: none;
+    }
+    .section-head { margin-bottom: 15px; }
+    .section-head h2 { font-size: 1.25rem; }
+    .section-head p { color: #666; }
+    .step-badge { display: none; }
+    .input-panel {
+        padding: 14px;
+        background: #fafafa;
+        border-color: #ccc;
+        border-radius: 2px;
+    }
+    input[type="file"], select {
+        border: 1px solid #aaa;
+        border-radius: 2px;
+    }
+    button {
+        padding: 9px 18px;
+        color: #fff;
+        background: #333;
+        border: 1px solid #222;
+        border-radius: 2px;
+        box-shadow: none;
+    }
+    button:hover { background: #111; }
+    .feature-note {
+        color: #333;
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        border-left: 3px solid #777;
+        border-radius: 0;
+    }
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+        border-top: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+    }
+    .feature-card {
+        padding: 13px;
+        background: #fff;
+        border: 0;
+        border-right: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        border-radius: 0;
+    }
+    .feature-value { color: #222; }
+    .feature-key, .feature-desc { color: #666; }
+    .table-wrap {
+        border-color: #bbb;
+        border-radius: 0;
+    }
+    th { background: #eee; }
+    td.score { color: #111; }
+    .votes-box {
+        background: #f5f5f5;
+        border-color: #ccc;
+        border-radius: 2px;
+    }
+    .vote-pill {
+        padding: 0 8px;
+        background: transparent;
+        border: 0;
+        border-left: 1px solid #aaa;
+        border-radius: 0;
+    }
+    .row > div, .visual-card {
+        border-radius: 0;
+        box-shadow: none;
+    }
+    @media (max-width: 680px) {
+        .hero, .box { padding: 15px; border-radius: 0; }
+        .hero { padding-left: 0; padding-right: 0; }
+        .feature-grid { grid-template-columns: 1fr; }
+    }
+
+</style>
+</head>
+<body>
+<main class="page-shell">
+
+<header class="hero">
+    <h1>Tìm kiếm âm thanh bộ gõ</h1>
+    <p>Chọn một file âm thanh để tìm các mẫu gần nhất trong cơ sở dữ liệu.</p>
+</header>
+
+<form method="post" enctype="multipart/form-data" class="box">
+    <div class="section-head">
+        <div><h2>Chọn âm thanh truy vấn</h2><p>Chỉ cần sử dụng một trong hai cách bên dưới.</p></div>
+        <span class="step-badge">1</span>
+    </div>
+    <div class="search-grid">
+        <div class="input-panel">
+            <label for="audio"><strong>Tải file từ máy</strong></label>
+            <small>Ưu tiên định dạng WAV; hệ thống sẽ tự chuyển về mono và chuẩn hóa.</small>
+            <input id="audio" type="file" name="audio" accept=".wav,audio/*">
+        </div>
+        <div class="input-panel">
+            <label for="sample"><strong>Chọn file mẫu</strong></label>
+            <small>Dùng nhanh một file trong tập truy vấn đã chuẩn bị.</small>
+            <select id="sample" name="sample">
+                <option value="">-- Chọn một file mẫu --</option>
+                {% for s in samples %}<option value="{{s}}">{{s}}</option>{% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="submit-row">
+        <span>Kết quả hiển thị điểm của 5 nhóm đặc trưng và điểm tổng có trọng số.</span>
+        <button type="submit">Tìm kiếm</button>
+    </div>
+</form>
+
+{% if error %}<div class="err">Lỗi: {{error}}</div>{% endif %}
+
+{% set feature_info = {
+    'centroid_mean': ('Độ sáng trung bình', 'Hz', 'Tần số trọng tâm của phổ. Cao thường cho cảm giác sáng, sắc hoặc thiên về kim loại.'),
+    'centroid_std': ('Biến thiên độ sáng', 'Hz', 'Mức thay đổi của trọng tâm phổ theo thời gian.'),
+    'bandwidth_mean': ('Độ rộng phổ trung bình', 'Hz', 'Phạm vi tần số quanh trọng tâm; phổ rộng thường giàu thành phần tần số.'),
+    'bandwidth_std': ('Biến thiên độ rộng phổ', 'Hz', 'Mức thay đổi độ rộng phổ trong suốt âm thanh.'),
+    'rolloff_mean': ('Ngưỡng năng lượng phổ', 'Hz', 'Tần số chứa phần lớn năng lượng, giúp phân biệt âm trầm và âm sáng.'),
+    'rolloff_std': ('Biến thiên ngưỡng phổ', 'Hz', 'Mức dao động của tần số roll-off theo thời gian.'),
+    'flatness_mean': ('Độ phẳng phổ', '', 'Gần 0: có cao độ rõ. Gần 1: giống nhiễu, xì hoặc va đập rộng phổ.'),
+    'flatness_std': ('Biến thiên độ phẳng', '', 'Cho biết tính nhiễu thay đổi nhiều hay ít theo thời gian.'),
+    'zcr_mean': ('Tỷ lệ qua điểm 0', '', 'Thường cao với âm sắc, nhiễu hoặc có nhiều thành phần cao tần.'),
+    'zcr_std': ('Biến thiên ZCR', '', 'Mức thay đổi tỷ lệ tín hiệu đổi dấu theo thời gian.'),
+    'rms_mean': ('Năng lượng trung bình', '', 'Mức năng lượng/cường độ trung bình của tín hiệu sau tiền xử lý.'),
+    'rms_std': ('Biến thiên năng lượng', '', 'Cho biết độ mạnh của âm thay đổi nhiều hay ít.'),
+    'attack_s': ('Thời gian tấn công', 'giây', 'Từ lúc âm bắt đầu đến đỉnh năng lượng; ngắn thường là tiếng gõ nhanh, sắc.'),
+    'decay_s': ('Thời gian suy giảm', 'giây', 'Thời gian năng lượng giảm sau đỉnh; cao thường tương ứng với âm ngân lâu.'),
+    'temporal_centroid_s': ('Trọng tâm thời gian', 'giây', 'Vị trí tập trung năng lượng; cao khi năng lượng kéo dài về phía sau.'),
+    'spectral_flux': ('Biến đổi phổ', '', 'Mức thay đổi phổ giữa các khung liên tiếp; cao khi âm chuyển biến mạnh.')
+} %}
+
+{% if results %}
+    <div class="box">
+        <h3>1. Audio đầu vào: <code>{{qname}}</code> ({{'%.2f'|format(dur)}} giây)</h3>
+        <audio controls src="/query_audio/{{token}}"></audio>
+        <div class="row">
+            <div>
+                <img src="data:image/png;base64,{{img1}}">
+                <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Waveform & Spectrogram</div>
+            </div>
+            <div>
+                <img src="data:image/png;base64,{{img2}}">
+                <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Z-score query (cột) so với Top-1 (đường đỏ)</div>
+            </div>
+        </div>
+    </div>
+
+    <section class="box">
+        <div class="section-head">
+            <div><h2>Đặc trưng trích được</h2><p>Các con số mô tả màu âm, năng lượng và diễn biến theo thời gian.</p></div>
+            <span class="step-badge">3</span>
+        </div>
+        <div class="feature-note"><strong>Cách đọc:</strong> không có một giá trị “tốt” tuyệt đối. Hệ thống so sánh tổ hợp các đặc trưng sau khi chuẩn hóa z-score trên toàn CSDL.</div>
+        <div class="feature-grid">
+        {% for n,v in feat_rows %}
+            {% set info = feature_info.get(n, (n, '', 'Đặc trưng âm thanh dùng trong phép so sánh.')) %}
+            <article class="feature-card">
+                <div class="feature-card-head">
+                    <strong>{{info[0]}}</strong>
+                    <span class="feature-value">{{v}}{% if info[1] %} {{info[1]}}{% endif %}</span>
+                </div>
+                <span class="feature-key">{{n}}</span>
+                <p class="feature-desc">{{info[2]}}</p>
+            </article>
+        {% endfor %}
+        </div>
+    </section>
+
+    <section class="box">
+    <div class="section-head">
+        <div><h2>Top-5 kết quả gần nhất</h2><p>Điểm càng gần 1 thì hai âm càng giống nhau trong nhóm tương ứng.</p></div>
+        <span class="step-badge">4</span>
+    </div>
+    <div class="table-wrap">
+    <table>
+    <tr>
+        <th>#</th>
+        <th>File</th>
+        <th>Nhãn</th>
+        <th>MFCC<br><small>×{{W.mfcc}}</small></th>
+        <th>ΔMFCC<br><small>×{{W.dmfcc}}</small></th>
+        <th>Phổ<br><small>×{{W.spec}}</small></th>
+        <th>Contrast<br><small>×{{W.contrast}}</small></th>
+        <th>Thời gian<br><small>×{{W.temp}}</small></th>
+        <th>Tổng</th>
+        <th>Nghe</th>
+    </tr>
+    {% for r in results %}
+    <tr>
+        <td class="num"><b>{{r.rank}}</b></td>
+        <td class="file-cell"><code>{{r.file}}</code></td>
+        <td class="label-text label-cell">{{r.label}}</td>
+        <td class="num">{{'%.3f'|format(r.groups.mfcc)}}</td>
+        <td class="num">{{'%.3f'|format(r.groups.dmfcc)}}</td>
+        <td class="num">{{'%.3f'|format(r.groups.spec)}}</td>
+        <td class="num">{{'%.3f'|format(r.groups.contrast)}}</td>
+        <td class="num">{{'%.3f'|format(r.groups.temp)}}</td>
+        <td class="score">{{'%.3f'|format(r.score)}}</td>
+        <td class="num audio-cell"><audio controls preload="none" src="/audio/{{r.id}}"></audio></td>
+    </tr>
+    {% endfor %}
+    </table>
+    </div>
+
+    <div class="votes-box">
+        <strong>Phân bố nhãn trong Top-5:</strong>
+        {% for l,c in votes %}<span class="vote-pill">{{l}}: <b>{{c}}</b></span>{% endfor %}
+    </div>
+    </section>
+{% endif %}
+
+</main>
+</body>
+</html>
