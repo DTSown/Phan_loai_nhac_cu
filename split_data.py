@@ -1,10 +1,4 @@
-"""BƯỚC 0: chia raw_data/ thành data/ (CSDL) và query/ (truy vấn).
-raw_data/<ten_nhac_cu>/*.wav
-  -> data/<lop>/...            : đưa vào CSDL
-  -> query/seen/<lop>/...      : ~5% mỗi lớp, thuộc lớp đã có nhưng KHÔNG nằm trong CSDL
-  -> query/unseen/<lop>/...    : toàn bộ file của lớp "nhạc cụ lạ" (không có trong CSDL)
-Chạy: python split_data.py --unseen cowbell tambourine --ratio 0.05
-"""
+
 import os, glob, random, shutil, argparse, hashlib
 
 def md5(path):

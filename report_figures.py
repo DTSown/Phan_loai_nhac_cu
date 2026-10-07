@@ -1,5 +1,4 @@
-"""BƯỚC 4b: in và lưu kết quả trung gian cho 1 file truy vấn.
-Chạy: python report_figures.py query/seen/snare/xxx.wav"""
+
 import sys, os, numpy as np, pandas as pd
 from features import *
 from search import Engine, W

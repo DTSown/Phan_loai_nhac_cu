@@ -1,4 +1,4 @@
-"""BƯỚC 4: bộ máy tìm kiếm (chuẩn hóa z-score, cosine theo nhóm, cộng có trọng số)."""
+
 import sqlite3, numpy as np
 from features import *
 

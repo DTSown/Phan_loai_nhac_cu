@@ -1,4 +1,4 @@
-"""Thống kê độ dài, sample rate, số kênh, số file mỗi lớp (dùng cho mô tả dữ liệu ở bước 1)."""
+
 import os, sys, soundfile as sf, pandas as pd
 root = sys.argv[1] if len(sys.argv) > 1 else "raw_data"
 rows = []

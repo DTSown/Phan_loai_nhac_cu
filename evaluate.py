@@ -1,4 +1,4 @@
-"""BƯỚC 4c: đánh giá (leave-one-out trên CSDL, ablation, nhầm lẫn, query seen/unseen)."""
+
 import os, glob, numpy as np, pandas as pd
 from collections import Counter
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt

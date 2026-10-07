@@ -1,4 +1,4 @@
-"""Vẽ các hình minh họa kết quả trung gian (bước 4b)."""
+
 import io, base64, numpy as np
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt, librosa, librosa.display

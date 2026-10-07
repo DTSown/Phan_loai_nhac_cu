@@ -1,4 +1,4 @@
-"""BƯỚC 5: web demo Flask."""
+
 import os, uuid, glob
 from collections import Counter
 from flask import Flask, request, render_template, send_file, abort

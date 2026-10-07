@@ -1,4 +1,4 @@
-"""BƯỚC 2-3: tiền xử lý + trích đặc trưng (83 chiều, 5 nhóm)."""
+
 import numpy as np, librosa
 
 SR, MAXDUR, HOP = 22050, 3.0, 512

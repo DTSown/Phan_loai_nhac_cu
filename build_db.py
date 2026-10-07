@@ -1,4 +1,4 @@
-"""BƯỚC 3: trích đặc trưng cho toàn bộ data/ và lưu vào SQLite (perc.db)."""
+
 import sqlite3, glob, os, json, numpy as np
 from joblib import Parallel, delayed
 from features import *
